@@ -3,13 +3,13 @@
     include_once ('connect.php');
     $room_id = $_SESSION['room'];
 
-    $query = mysqli_query($conn, "SELECT users.id from users, rooms WHERE users.id = rooms.host_id");
+    $query = mysqli_query($conn, "SELECT * from rooms WHERE id='$room_id'");
     $result = $query->fetch_assoc();
-    $host_id = $result['id'];
 
-    $query = mysqli_query($conn, "SELECT users.id from users, rooms WHERE users.id = rooms.guest_id");
-    $result = $query->fetch_assoc();
-    $guest_id = $result['id'];
+    if ($result['game_end'] === '1') exit();
+
+    $host_id = $result['host_id'];
+    $guest_id = $result['guest_id'];
 
     if ($_POST['win'] == 'host'){
         mysqli_query($conn, "update rooms set host_score=`host_score`+1 where id='$room_id'");

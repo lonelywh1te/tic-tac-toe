@@ -46,6 +46,7 @@
             </div>
             <button class="main_btn" onclick="window.location.href = 'create_room.php';">Создать комнату</button>
             <button class="main_btn" onclick="window.location.href = 'conn_room.php';">Подключиться к комнате</button>
+            <button class="main_btn" onclick="window.location.href = 'bot_room.php';">Тренировка</button>
         </div>
     </div>
 </body>

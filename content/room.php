@@ -56,7 +56,7 @@
                     <div class="info_name" id="own_name"><?= $_SESSION['user'] ?></div>
                 </div>
             </div>
-            <div class="info_time" id="enemy_time" style="font-weight: bold; color: #B44444;">60</div>
+            <div class="info_time" id="move_time" style="font-weight: bold; color: #B44444;">--</div>
             <div class="game_info" id="second_player" style="color: white; justify-content: flex-end;">
                 <div class="info_cont" style="align-items: flex-end;">
                     <div class="info_name" id="enemy_name"><?= $enemy_name ?></div>
@@ -87,7 +87,6 @@
     <script src="../scripts/jquery.min.js"></script>
     <script>
         let role = get_role();
-        let move_time = 60;
         let move_now = 'tic';
         let game_end = false;
         let last_field;
@@ -108,22 +107,45 @@
                             document.getElementById('own_score').innerHTML = String(result['guest_score']);
                             document.getElementById('enemy_score').innerHTML = String(result['host_score']);
                         }
+                        document.getElementById('move_time').innerHTML = '--';
+                        document.getElementById('move_time').style.color = 'white';
                     }
                 })
                 return;
             }
+
             $.ajax({
                 url: "../php/get_field.php",
+                dataType: "json",
                 type: "post",
                 success: function (data){
+                    // таймер
+                    document.getElementById('move_time').innerHTML = data['move_time'];
+
+                    if (String(data['move_time']) === '0'){
+                        if (data['is_moving'] === 'tic'){
+                            win('O');
+                        }
+                        else {
+                            win('X');
+                        }
+                    }
+
+                    if (data['is_moving'] === 'tic'){
+                        document.getElementById('move_time').style.color = '#B44444';
+                    }
+                    else {
+                        document.getElementById('move_time').style.color = '#44B4A0';
+                    }
+
                     // обновление поля
-                    if (data.length !== 9){
+                    if (data['field'].length !== 9){
                         window.location.href = 'leaved.php';
                     }
-                    if (last_field === data) return;
+                    if (last_field === data['field']) return;
 
                     let id = 1;
-                    for(let i of data) {
+                    for(let i of data['field']) {
                         if (i === "X") {
                             document.getElementById(String(id)).innerHTML = '<img alt="X" src="../assets/tic.svg" class="TicTac-ico">';
                         }
@@ -135,8 +157,8 @@
                         }
                         id++;
                     }
-                    check_win(data);
-                    last_field = data;
+                    check_win(data['field']);
+                    last_field = data['field'];
                 }
             })
             console.log(game_end);
@@ -146,11 +168,6 @@
 
         function win(sign){
             game_end = true;
-            $.ajax({
-                url: "../php/game_end.php",
-                type: "post"
-            });
-
             let winner;
 
             <?php
@@ -183,6 +200,10 @@
                             type: "post",
                             data: {win: 'host'}
                         });
+                        $.ajax({
+                            url: "../php/game_end.php",
+                            type: "post"
+                        });
                 <?php
                     }
                     else { ?>
@@ -190,6 +211,10 @@
                             url: "../php/update_scores.php",
                             type: "post",
                             data: {win: 'guest'}
+                        });
+                        $.ajax({
+                            url: "../php/game_end.php",
+                            type: "post"
                         });
                 <?php
                     }
@@ -300,6 +325,7 @@
             })
             role = get_role();
             update_field();
+            timer();
         }
         function wait_restart(){
             let status = $.ajax({
@@ -319,6 +345,7 @@
                 game_end = false;
                 document.body.style.background = '#182234';
                 update_field();
+                timer();
                 return;
             }
             setTimeout(wait_restart, 300);
@@ -371,6 +398,16 @@
                 data: {block_id: id, role: role}
             })
         }
+
+        function timer(){
+            if (game_end) return;
+            $.ajax({
+                url: "../php/timer.php",
+                type: "post"
+            })
+            setTimeout(timer, 1000);
+        }
+        timer();
 
     </script>
 </body>

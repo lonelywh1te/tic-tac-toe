@@ -22,7 +22,7 @@
                 mysqli_query($conn, "update rooms set is_moving='tic' where id='$room_id'");
                 echo 'tic';
             }
-            mysqli_query($conn, "update rooms set field='$field' where id='$room_id'");
+            mysqli_query($conn, "update rooms set field='$field', move_time=60 where id='$room_id'");
         }
     }
 

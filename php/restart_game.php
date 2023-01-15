@@ -15,6 +15,5 @@
         $tac = $role['tic'];
     }
 
-    mysqli_query($conn, "update rooms set tic='$tic', tac='$tac' where id='$room_id'");
-    mysqli_query($conn, "update rooms set field=default, is_moving=default, game_end=default where id='$room_id'");
+    mysqli_query($conn, "update rooms set tic='$tic', tac='$tac', field=default, is_moving=default, game_end=default, move_time=default where id='$room_id'");
     
